@@ -11,17 +11,6 @@ import org.komapper.annotation.KomapperId
 import serialization.LocalDateTimeSerializer
 import java.time.LocalDateTime
 
-/*
-CREATE TABLE dm_channel
-(
-	dm_channel_id INT UNSIGNED AUTO_INCREMENT
-		PRIMARY KEY,
-	custom_name   VARCHAR(100) CHARSET utf8 NULL,
-	created_at    TIMESTAMP DEFAULT (NOW()) NOT NULL
-)
-	ENGINE = InnoDB;
- */
-
 @Serializable
 @KomapperEntity
 data class DmChannel(
