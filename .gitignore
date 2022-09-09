@@ -1,0 +1,12 @@
+### Intellij
+
+.idea
+
+### Gradle
+
+.gradle
+build
+
+### Environment
+
+.env
