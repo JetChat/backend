@@ -2,28 +2,28 @@ package api
 
 import io.ktor.server.http.*
 import kotlinx.serialization.Serializable
+import sql.Snowflake
 import sql.models.Message
 import sql.models.User
 
 @Serializable
 data class CreateMessage(
-	val text: String,
-	val author: String,
-	val replyTo: Int? = null
+	val content: String?,
+	val replyTo: Snowflake? = null
 )
 
 @Serializable
-data class SentMessage(
-	val id: Int,
-	val authorId: Int,
-	val channelId: Int,
+data class GetMessage(
+	val id: Snowflake,
+	val authorId: Snowflake,
+	val channelId: Snowflake,
 	val content: String?,
-	val replyId: Int?,
+	val replyId: Snowflake?,
 	val createdAt: String,
 	val author: User,
 ) {
 	companion object {
-		fun fromSQL(message: Message, author: User): api.SentMessage = SentMessage(
+		fun fromSQL(message: Message, author: User): GetMessage = GetMessage(
 			message.id,
 			message.authorId,
 			message.channelId,

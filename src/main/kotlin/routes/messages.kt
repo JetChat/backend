@@ -1,20 +1,27 @@
 package routes
 
-import api.Message
+import api.CreateMessage
+import api.GetMessage
+import api.UserSession
 import io.ktor.server.application.*
+import io.ktor.server.auth.*
+import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import logger
 import org.komapper.core.dsl.Meta
 import org.komapper.core.dsl.QueryDsl
 import org.komapper.core.dsl.operator.desc
 import org.komapper.core.dsl.query.flatZip
 import org.komapper.core.dsl.query.map
 import org.komapper.core.dsl.query.singleOrNull
+import sql.models.Message
 import sql.models.message
 import sql.models.user
 import sql.runQuery
+import utils.generateId
 import utils.getChannelIdParam
-import utils.getIntParam
+import utils.getLongPathParam
 import utils.getMessageIdParam
 import utils.invalidId
 import utils.notFound
@@ -22,17 +29,17 @@ import utils.notFound
 fun Route.messages() {
 	route("/messages") {
 		get {
-			val after = getIntParam("after")
-			val before = getIntParam("before")
-			val limit = getIntParam("limit") ?: -1
+			val after = getLongPathParam("after")
+			val before = getLongPathParam("before")
+			val limit = getLongPathParam("limit")?.toInt() ?: -1
 			
 			if (limit == 0) {
-				call.respond(emptyList<Message>())
+				call.respond(emptyList<GetMessage>())
 				return@get
 			}
 			
 			if (after == null && before == null) {
-				call.respond(emptyList<Message>())
+				call.respond(emptyList<GetMessage>())
 				return@get
 			}
 			
@@ -67,7 +74,7 @@ fun Route.messages() {
 		
 		get("{messageId}") {
 			val messageId = getMessageIdParam()
-			if (messageId == -1) {
+			if (messageId == -1L) {
 				invalidId("message", messageId)
 				return@get
 			}
@@ -81,7 +88,7 @@ fun Route.messages() {
 					}.singleOrNull()
 				}.map { (message, user) ->
 					if (message == null || user == null) null
-					else Message.fromSQL(message, user)
+					else GetMessage.fromSQL(message, user)
 				}
 			}
 			
@@ -91,6 +98,32 @@ fun Route.messages() {
 			}
 			
 			call.respond(getMessageAndAuthor)
+		}
+		
+		post("create") {
+			val body = call.receive<CreateMessage>()
+			val session = call.principal<UserSession>()!!
+			
+			if (body.content == null) {
+				call.respondText("Missing 'content' parameter")
+				return@post
+			}
+			
+			logger.debug(session.toString())
+			
+			val lastMessage = runQuery {
+				QueryDsl.insert(Meta.message).single(
+					Message(
+						id = generateId(),
+						channelId = getChannelIdParam(),
+						authorId = session.userId,
+						content = body.content,
+						replyId = body.replyTo
+					)
+				)
+			}
+			
+			call.respond(lastMessage)
 		}
 	}
 }
