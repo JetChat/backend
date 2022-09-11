@@ -6,7 +6,14 @@ import sql.models.Message
 import sql.models.User
 
 @Serializable
-data class Message(
+data class CreateMessage(
+	val text: String,
+	val author: String,
+	val replyTo: Int? = null
+)
+
+@Serializable
+data class SentMessage(
 	val id: Int,
 	val authorId: Int,
 	val channelId: Int,
@@ -16,7 +23,7 @@ data class Message(
 	val author: User,
 ) {
 	companion object {
-		fun fromSQL(message: Message, author: User): api.Message = Message(
+		fun fromSQL(message: Message, author: User): api.SentMessage = SentMessage(
 			message.id,
 			message.authorId,
 			message.channelId,
