@@ -1,9 +1,10 @@
 package utils
 
-import java.security.MessageDigest
+import env
+import io.ktor.util.*
 
-fun hashPassword(password: String): String {
-	val md = MessageDigest.getInstance("SHA-256")
-	val hash = md.digest(password.toByteArray())
-	return hash.fold("") { str, it -> str + "%02x".format(it) }
+val digestFunction = getDigestFunction("SHA-256") {
+	env("HASH_SECRET", "mysecret")
 }
+
+fun hashPassword(password: String) = digestFunction(password).toString()
