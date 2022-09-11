@@ -30,7 +30,7 @@ fun Route.channels() {
 			
 			get {
 				val channelId = getChannelIdParam()
-				if (channelId == -1) {
+				if (channelId == -1L) {
 					invalidId("channel", channelId)
 					return@get
 				}

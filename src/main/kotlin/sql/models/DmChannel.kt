@@ -9,12 +9,13 @@ import org.komapper.annotation.KomapperCreatedAt
 import org.komapper.annotation.KomapperEntity
 import org.komapper.annotation.KomapperId
 import serialization.LocalDateTimeSerializer
+import sql.Snowflake
 import java.time.LocalDateTime
 
 @Serializable
 @KomapperEntity
 data class DmChannel(
-	@KomapperId @KomapperColumn("dm_channel_id") val id: Int,
+	@KomapperId @KomapperColumn("dm_channel_id") val id: Snowflake,
 	val customName: String,
 	@KomapperCreatedAt val createdAt: LocalDateTime,
 )

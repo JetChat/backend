@@ -12,24 +12,23 @@ import org.komapper.annotation.KomapperEntity
 import org.komapper.annotation.KomapperEnum
 import org.komapper.annotation.KomapperId
 import serialization.LocalDateTimeSerializer
+import sql.Snowflake
 import java.time.LocalDateTime
 
 @Serializable
 @KomapperEntity
 data class Channel(
-	@KomapperId @KomapperColumn("channel_id") val id: Int,
+	@KomapperId @KomapperColumn("channel_id") val id: Snowflake,
 	val name: String,
 	val description: String?,
-	val parentId: Int?,
-	val guildId: Int,
+	val parentId: Snowflake?,
+	val guildId: Snowflake,
 	val createdAt: LocalDateTime,
 	@KomapperEnum(EnumType.ORDINAL) val channelType: ChannelType,
 	val channelPosition: Int,
 )
 
-//@Serializable(with = EnumOrdinalSerializer::class)
 @Serializable
 enum class ChannelType {
-	@SerialName("0")
-	TEXT
+	@SerialName("0") TEXT
 }

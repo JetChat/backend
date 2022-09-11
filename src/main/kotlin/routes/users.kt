@@ -12,6 +12,7 @@ import org.komapper.core.dsl.query.singleOrNull
 import sql.models.User
 import sql.models.user
 import sql.runQuery
+import utils.generateId
 import utils.generateRandomDiscriminator
 import utils.getUserIdParam
 import utils.hashPassword
@@ -22,7 +23,7 @@ fun Route.users() {
 	route("/users") {
 		get("{userId}") {
 			val userId = getUserIdParam()
-			if (userId == -1) {
+			if (userId == -1L) {
 				invalidId("user", userId)
 				return@get
 			}
@@ -60,10 +61,11 @@ fun Route.users() {
 			
 			val createUser = runQuery {
 				QueryDsl.insert(Meta.user).values {
-					it.username to user.username
-					it.email to user.email
-					it.password to hashedPassword
-					it.discriminator to discriminator
+					it.id eq generateId()
+					it.username eq user.username
+					it.email eq user.email
+					it.password eq hashedPassword
+					it.discriminator eq discriminator.toInt()
 				}
 			}
 			

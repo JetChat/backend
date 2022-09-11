@@ -2,6 +2,7 @@ package api
 
 import io.ktor.server.auth.*
 import kotlinx.serialization.Serializable
+import sql.Snowflake
 
 @Serializable
 data class CreateUser(
@@ -18,6 +19,8 @@ data class LoginUser(
 )
 
 data class UserSession(
-	val user: LoginUser,
+	val username: String,
+	val userId: Snowflake,
+	val discriminator: Int,
 	val loggedIn: Boolean = false
 ) : Principal

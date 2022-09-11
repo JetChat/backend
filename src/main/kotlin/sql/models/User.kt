@@ -17,13 +17,14 @@ import org.komapper.core.dsl.operator.or
 import org.komapper.core.dsl.query.firstOrNull
 import org.komapper.core.dsl.query.singleOrNull
 import serialization.LocalDateTimeSerializer
+import sql.Snowflake
 import sql.runQuery
 import java.time.LocalDateTime
 
 @Serializable
 @KomapperEntity
 data class User(
-	@KomapperId @KomapperColumn("user_id") val id: Int,
+	@KomapperId @KomapperColumn("user_id") val id: Snowflake,
 	val avatarUrl: String?,
 	@KomapperCreatedAt val createdAt: LocalDateTime,
 	val description: String?,
@@ -34,7 +35,7 @@ data class User(
 )
 
 object UserController {
-	fun getUser(id: Int) = runQuery {
+	fun getUser(id: Snowflake) = runQuery {
 		QueryDsl.from(Meta.user).where {
 			Meta.user.id eq id
 		}.singleOrNull()

@@ -17,7 +17,7 @@ fun Route.members() {
 		route("{memberId}") {
 			get {
 				val memberId = getMemberIdParam()
-				if (memberId == -1) {
+				if (memberId == -1L) {
 					invalidId("member", memberId)
 					return@get
 				}

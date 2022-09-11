@@ -20,7 +20,7 @@ fun Route.auth() {
 			return@get
 		}
 		
-		call.sessions.set(UserSession(LoginUser(user.username, user.password, user.email), true))
+		call.sessions.set(UserSession(user.username, user.id, user.discriminator, true))
 		call.respond(HttpStatusCode.OK)
 	}
 	

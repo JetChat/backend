@@ -21,7 +21,7 @@ fun Route.guilds() {
 			get {
 				val guildId = getGuildIdParam()
 				
-				if (guildId == -1) {
+				if (guildId == -1L) {
 					invalidId("guild", guildId)
 					return@get
 				}

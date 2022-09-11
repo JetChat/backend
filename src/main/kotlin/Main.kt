@@ -11,6 +11,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.sessions.*
 import io.ktor.server.websocket.*
+import io.ktor.util.logging.*
 import kotlinx.serialization.json.Json
 import org.komapper.dialect.mysql.jdbc.MySqlJdbcDialect
 import org.komapper.jdbc.JdbcDatabase
@@ -26,6 +27,8 @@ fun main(args: Array<String>) = EngineMain.main(args)
 
 lateinit var db: JdbcDatabase
 
+val logger = KtorSimpleLogger("main")
+
 fun Application.module() {
 	db = JdbcDatabase(
 		url = "jdbc:mysql://${env("MYSQL_URL")}/${env(("DATABASE"))}",
@@ -40,7 +43,7 @@ fun Application.module() {
 		session<UserSession>("auth-session") {
 			validate { session ->
 				when {
-					session.user.toString().isNotEmpty() -> session
+					session.userId != 0L -> session
 					else -> null
 				}
 			}
