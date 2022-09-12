@@ -12,7 +12,7 @@ data class CreateUser(
 )
 
 @Serializable
-data class LoginUser(
+data class Credentials(
 	val username: String = "",
 	val email: String = "",
 	val password: String = ""

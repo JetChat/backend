@@ -40,7 +40,7 @@ fun Route.channels() {
 						Meta.channel.id eq channelId
 						Meta.channel.guildId eq getGuildIdParam()
 					}.singleOrNull()
-				} ?: return@get notFound("Channel with id $channelId not found")
+				} ?: return@get notFound("channel", channelId)
 				
 				val lastMessage = runQueryNullable {
 					QueryDsl.from(Meta.message).where {

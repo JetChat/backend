@@ -2,6 +2,8 @@
 
 package sql.models
 
+import io.ktor.server.application.*
+import io.ktor.server.response.*
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import kotlinx.serialization.UseSerializers
@@ -15,19 +17,24 @@ import org.komapper.core.dsl.expression.WhereDeclaration
 import org.komapper.core.dsl.operator.and
 import org.komapper.core.dsl.operator.or
 import org.komapper.core.dsl.query.firstOrNull
+import org.komapper.core.dsl.query.map
 import org.komapper.core.dsl.query.singleOrNull
 import serialization.LocalDateTimeSerializer
 import sql.Snowflake
 import sql.runQuery
+import utils.generateId
+import utils.generateRandomDiscriminator
+import utils.hashPassword
+import java.sql.SQLDataException
 import java.time.LocalDateTime
 
 @Serializable
 @KomapperEntity
 data class User(
 	@KomapperId @KomapperColumn("user_id") val id: Snowflake,
-	val avatarUrl: String?,
-	@KomapperCreatedAt val createdAt: LocalDateTime,
-	val description: String?,
+	val avatarUrl: String? = null,
+	@KomapperCreatedAt val createdAt: LocalDateTime = LocalDateTime.now(),
+	val description: String? = null,
 	val discriminator: Int,
 	@Transient val email: String = "",
 	@Transient val password: String = "",
@@ -55,5 +62,39 @@ object UserController {
 		}
 		
 		QueryDsl.from(Meta.user).where(whereUser).firstOrNull()
+	}
+	
+	@Throws(SQLDataException::class)
+	fun createUser(username: String, password: String, email: String): User {
+		runQuery {
+			QueryDsl.from(Meta.user).where {
+				Meta.user.email eq email
+			}.singleOrNull()
+		}?.let {
+			throw SQLDataException("User with email '$email' already exists")
+		}
+		
+		val alreadyExistingDiscriminators = runQuery {
+			QueryDsl.from(Meta.user).where {
+				Meta.user.username eq username
+			}.map {
+				it.map(User::discriminator)
+			}
+		}
+		
+		val discriminator = generateRandomDiscriminator(alreadyExistingDiscriminators)
+		val hashedPassword = hashPassword(password)
+		
+		val user = User(
+			id = generateId(),
+			discriminator = discriminator.toInt(),
+			email = email,
+			password = hashedPassword,
+			username = username,
+		)
+		
+		return runQuery {
+			QueryDsl.insert(Meta.user).single(user)
+		}
 	}
 }

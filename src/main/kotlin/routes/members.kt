@@ -26,7 +26,7 @@ fun Route.members() {
 					QueryDsl.from(Meta.member).where {
 						Meta.member.id eq memberId
 					}.singleOrNull()
-				} ?: return@get notFound("Member with id '$memberId' not found")
+				} ?: return@get notFound("member", memberId)
 				
 				call.respond(getMember)
 			}

@@ -93,7 +93,7 @@ fun Route.messages() {
 			}
 			
 			if (getMessageAndAuthor == null) {
-				notFound("Message with id '$messageId' not found")
+				notFound("message", messageId)
 				return@get
 			}
 			

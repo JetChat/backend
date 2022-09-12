@@ -1,21 +1,10 @@
 package routes
 
-import api.CreateUser
 import io.ktor.server.application.*
-import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import org.komapper.core.dsl.Meta
-import org.komapper.core.dsl.QueryDsl
-import org.komapper.core.dsl.query.map
-import org.komapper.core.dsl.query.singleOrNull
-import sql.models.User
-import sql.models.user
-import sql.runQuery
-import utils.generateId
-import utils.generateRandomDiscriminator
+import sql.models.UserController
 import utils.getUserIdParam
-import utils.hashPassword
 import utils.invalidId
 import utils.notFound
 
@@ -28,48 +17,7 @@ fun Route.users() {
 				return@get
 			}
 			
-			val getUser = runQuery {
-				QueryDsl.from(Meta.user).where {
-					Meta.user.id eq getUserIdParam()
-				}.singleOrNull()
-			} ?: return@get notFound("User not found")
-			
-			call.respond(getUser)
-		}
-		
-		post("create") {
-			val user = call.receive<CreateUser>()
-			runQuery {
-				QueryDsl.from(Meta.user).where {
-					Meta.user.email eq user.email
-				}.singleOrNull()
-			}?.let {
-				call.respond("An account with this email already exists")
-				return@post
-			}
-			
-			val alreadyExistingDiscriminators = runQuery {
-				QueryDsl.from(Meta.user).where {
-					Meta.user.username eq user.username
-				}.map {
-					it.map(User::discriminator)
-				}
-			}
-			
-			val discriminator = generateRandomDiscriminator(alreadyExistingDiscriminators)
-			val hashedPassword = hashPassword(user.password)
-			
-			val createUser = runQuery {
-				QueryDsl.insert(Meta.user).values {
-					it.id eq generateId()
-					it.username eq user.username
-					it.email eq user.email
-					it.password eq hashedPassword
-					it.discriminator eq discriminator.toInt()
-				}
-			}
-			
-			call.respond(createUser)
+			call.respond(UserController.getUser(userId) ?: return@get notFound("user", userId))
 		}
 	}
 }

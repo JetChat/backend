@@ -30,7 +30,7 @@ fun Route.guilds() {
 					QueryDsl.from(Meta.guild).where {
 						Meta.guild.id eq guildId
 					}.singleOrNull()
-				} ?: return@get notFound("Guild with id $guildId not found")
+				} ?: return@get notFound("guild", guildId)
 				
 				call.respond(getGuild)
 			}
