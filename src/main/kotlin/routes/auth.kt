@@ -58,7 +58,7 @@ fun Route.auth() {
 				verifyStringLength(credentials.email, 5 until 512, "Email")
 				
 				UserController.getUser(credentials.username, credentials.password, credentials.email)?.let {
-					call.respond(HttpStatusCode.Conflict)
+					call.respond(HttpStatusCode.Conflict, "User with this email already exists.")
 					return@post
 				}
 				
@@ -68,6 +68,7 @@ fun Route.auth() {
 					badRequest(e.message ?: "Unknown error.")
 					return@post
 				}
+				
 				call.respond(HttpStatusCode.OK)
 			}
 		}
