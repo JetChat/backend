@@ -19,7 +19,7 @@ fun Route.auth() {
 	get("/login") {
 		val credentials = call.receive<Credentials>()
 		
-		val user = UserController.getUser(credentials.username, credentials.password, credentials.email)
+		val user = UserController.get(credentials.username, credentials.password, credentials.email)
 		if (user == null) {
 			call.respond(HttpStatusCode.NotFound)
 			return@get
@@ -57,13 +57,13 @@ fun Route.auth() {
 				verifyStringLength(credentials.password, 5..100, "Password")
 				verifyStringLength(credentials.email, 5 until 512, "Email")
 				
-				UserController.getUser(credentials.username, credentials.password, credentials.email)?.let {
+				UserController.get(credentials.username, credentials.password, credentials.email)?.let {
 					call.respond(HttpStatusCode.Conflict, "User with this email already exists.")
 					return@post
 				}
 				
 				try {
-					UserController.createUser(credentials.username, credentials.password, credentials.email)
+					UserController.create(credentials.username, credentials.password, credentials.email)
 				} catch (e: SQLDataException) {
 					badRequest(e.message ?: "Unknown error.")
 					return@post

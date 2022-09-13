@@ -42,30 +42,8 @@ data class User(
 )
 
 object UserController {
-	fun getUser(id: Snowflake) = runQuery {
-		QueryDsl.from(Meta.user).where {
-			Meta.user.id eq id
-		}.singleOrNull()
-	}
-	
-	fun getUser(username: String, password: String = "", email: String = "") = runQuery {
-		val whereEmail: WhereDeclaration = {
-			Meta.user.email eq email
-		}
-		
-		val whereUsername: WhereDeclaration = {
-			Meta.user.username eq username
-		}
-		
-		val whereUser = (whereEmail.or(whereUsername)).and {
-			Meta.user.password eq password
-		}
-		
-		QueryDsl.from(Meta.user).where(whereUser).firstOrNull()
-	}
-	
 	@Throws(SQLDataException::class)
-	fun createUser(username: String, password: String, email: String): User {
+	fun create(username: String, password: String, email: String): User {
 		runQuery {
 			QueryDsl.from(Meta.user).where {
 				Meta.user.email eq email
@@ -97,4 +75,29 @@ object UserController {
 			QueryDsl.insert(Meta.user).single(user)
 		}
 	}
+	
+	fun has(id: Snowflake) = get(id) != null
+	
+	fun get(id: Snowflake) = runQuery {
+		QueryDsl.from(Meta.user).where {
+			Meta.user.id eq id
+		}.singleOrNull()
+	}
+	
+	fun get(username: String, password: String = "", email: String = "") = runQuery {
+		val whereEmail: WhereDeclaration = {
+			Meta.user.email eq email
+		}
+		
+		val whereUsername: WhereDeclaration = {
+			Meta.user.username eq username
+		}
+		
+		val whereUser = (whereEmail.or(whereUsername)).and {
+			Meta.user.password eq password
+		}
+		
+		QueryDsl.from(Meta.user).where(whereUser).firstOrNull()
+	}
+	
 }

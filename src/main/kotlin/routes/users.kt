@@ -17,7 +17,7 @@ fun Route.users() {
 				return@get
 			}
 			
-			call.respond(UserController.getUser(userId) ?: return@get notFound("user", userId))
+			call.respond(UserController.get(userId) ?: return@get notFound("user", userId))
 		}
 	}
 }
