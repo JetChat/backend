@@ -5,14 +5,11 @@ import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import org.komapper.core.dsl.Meta
-import org.komapper.core.dsl.QueryDsl
-import org.komapper.core.dsl.query.singleOrNull
+import logger
 import sql.models.Guild
 import sql.models.GuildController
+import sql.models.GuildMemberController
 import sql.models.UserController
-import sql.models.guild
-import sql.runQuery
 import utils.generateId
 import utils.getGuildIdParam
 import utils.invalidId
@@ -27,14 +24,13 @@ fun Route.guilds() {
 			
 			get {
 				val guildId = getGuildIdParam()
-				
 				if (guildId == -1L) {
 					invalidId("guild", guildId)
 					return@get
 				}
 				
-				val getGuild = GuildController.get(guildId) ?: return@get notFound("guild", guildId)
-				
+				val getMembers = call.request.queryParameters["members"]?.toBoolean() ?: false
+				val getGuild = GuildController.get(guildId, getMembers) ?: return@get notFound("guild", guildId)
 				call.respond(getGuild)
 			}
 		}
@@ -59,6 +55,8 @@ fun Route.guilds() {
 				iconUrl = guildPayload.iconUrl,
 			)
 			
+			val member = GuildMemberController.create(guild.id, guild.ownerId)
+			guild.members += member
 			call.respond(GuildController.create(guild))
 		}
 	}

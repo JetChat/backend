@@ -7,9 +7,10 @@ import org.komapper.annotation.KomapperColumn
 import org.komapper.annotation.KomapperCreatedAt
 import org.komapper.annotation.KomapperEntity
 import org.komapper.annotation.KomapperId
+import org.komapper.annotation.KomapperIgnore
 import org.komapper.core.dsl.Meta
 import org.komapper.core.dsl.QueryDsl
-import org.komapper.core.dsl.query.single
+import org.komapper.core.dsl.query.map
 import org.komapper.core.dsl.query.singleOrNull
 import serialization.LocalDateTimeSerializer
 import sql.Snowflake
@@ -25,6 +26,7 @@ data class Guild(
 	val ownerId: Snowflake,
 	@KomapperCreatedAt val createdAt: LocalDateTime = LocalDateTime.now(),
 	val iconUrl: String? = null,
+	@KomapperIgnore var members: List<GuildMember> = emptyList(),
 )
 
 object GuildController {
@@ -32,7 +34,12 @@ object GuildController {
 		QueryDsl.insert(Meta.guild).single(guild)
 	}
 	
-	fun get(id: Snowflake) = runQuery {
-		QueryDsl.from(Meta.guild).where { Meta.guild.id eq id }.singleOrNull()
+	fun get(id: Snowflake, members: Boolean = false) = runQuery {
+		QueryDsl.from(Meta.guild).where {
+			Meta.guild.id eq id
+		}.singleOrNull().map {
+			if (members) it?.members = GuildMemberController.getAll(id)
+			it
+		}
 	}
 }
