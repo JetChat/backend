@@ -7,7 +7,7 @@ import sql.models.Channel
 import sql.models.ChannelType
 
 @Serializable
-data class Channel(
+data class ChannelPayload(
 	val id: Snowflake,
 	val name: String,
 	val description: String?,
@@ -19,7 +19,7 @@ data class Channel(
 	val lastMessageId: Snowflake?,
 ) {
 	companion object {
-		fun fromSQL(channel: Channel, lastMessageId: Snowflake?): api.Channel = Channel(
+		fun fromSQL(channel: Channel, lastMessageId: Snowflake?): api.ChannelPayload = ChannelPayload(
 			id = channel.id,
 			name = channel.name,
 			description = channel.description,

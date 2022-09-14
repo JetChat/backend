@@ -5,14 +5,7 @@ import kotlinx.serialization.Serializable
 import sql.Snowflake
 
 @Serializable
-data class CreateUser(
-	val username: String,
-	val email: String,
-	val password: String
-)
-
-@Serializable
-data class Credentials(
+data class CredentialsPayload(
 	val username: String = "",
 	val email: String = "",
 	val password: String = ""

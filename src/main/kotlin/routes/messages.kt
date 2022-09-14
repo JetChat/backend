@@ -1,7 +1,7 @@
 package routes
 
-import api.CreateMessage
-import api.GetMessage
+import api.CreateMessagePayload
+import api.GetMessagePayload
 import api.UserSession
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
@@ -34,12 +34,12 @@ fun Route.messages() {
 			val limit = getLongPathParam("limit")?.toInt() ?: -1
 			
 			if (limit == 0) {
-				call.respond(emptyList<GetMessage>())
+				call.respond(emptyList<GetMessagePayload>())
 				return@get
 			}
 			
 			if (after == null && before == null) {
-				call.respond(emptyList<GetMessage>())
+				call.respond(emptyList<GetMessagePayload>())
 				return@get
 			}
 			
@@ -88,7 +88,7 @@ fun Route.messages() {
 					}.singleOrNull()
 				}.map { (message, user) ->
 					if (message == null || user == null) null
-					else GetMessage.fromSQL(message, user)
+					else GetMessagePayload.fromSQL(message, user)
 				}
 			}
 			
@@ -101,7 +101,7 @@ fun Route.messages() {
 		}
 		
 		post("create") {
-			val body = call.receive<CreateMessage>()
+			val body = call.receive<CreateMessagePayload>()
 			val session = call.principal<UserSession>()!!
 			
 			if (body.content == null) {

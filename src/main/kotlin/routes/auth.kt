@@ -1,6 +1,6 @@
 package routes
 
-import api.Credentials
+import api.CredentialsPayload
 import api.UserSession
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -17,7 +17,7 @@ const val authorisedCharsForUsers = "-_&[]{}.;+!*@#%"
 
 fun Route.auth() {
 	get("/login") {
-		val credentials = call.receive<Credentials>()
+		val credentials = call.receive<CredentialsPayload>()
 		
 		val user = UserController.get(credentials.username, credentials.password, credentials.email)
 		if (user == null) {
@@ -35,7 +35,7 @@ fun Route.auth() {
 	}
 	
 	post("/register") {
-		val credentials = call.receive<Credentials>()
+		val credentials = call.receive<CredentialsPayload>()
 		
 		when {
 			credentials.username.isBlank() -> badRequest("Username cannot be empty or only whitespaces.")

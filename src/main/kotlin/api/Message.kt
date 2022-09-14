@@ -7,13 +7,13 @@ import sql.models.Message
 import sql.models.User
 
 @Serializable
-data class CreateMessage(
+data class CreateMessagePayload(
 	val content: String?,
 	val replyTo: Snowflake? = null
 )
 
 @Serializable
-data class GetMessage(
+data class GetMessagePayload(
 	val id: Snowflake,
 	val authorId: Snowflake,
 	val channelId: Snowflake,
@@ -23,7 +23,7 @@ data class GetMessage(
 	val author: User,
 ) {
 	companion object {
-		fun fromSQL(message: Message, author: User): GetMessage = GetMessage(
+		fun fromSQL(message: Message, author: User): GetMessagePayload = GetMessagePayload(
 			message.id,
 			message.authorId,
 			message.channelId,

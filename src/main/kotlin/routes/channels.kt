@@ -1,6 +1,6 @@
 package routes
 
-import api.Channel
+import api.ChannelPayload
 import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -48,7 +48,7 @@ fun Route.channels() {
 					}.orderBy(Meta.message.id.desc()).limit(1).singleOrNull()
 				}
 				
-				val apiChannel = Channel.fromSQL(getChannel, lastMessage?.id)
+				val apiChannel = ChannelPayload.fromSQL(getChannel, lastMessage?.id)
 				call.respond(apiChannel)
 			}
 		}
