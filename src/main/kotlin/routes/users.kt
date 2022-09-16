@@ -1,6 +1,8 @@
 package routes
 
+import api.UserSession
 import io.ktor.server.application.*
+import io.ktor.server.auth.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import sql.models.UserController
@@ -18,6 +20,11 @@ fun Route.users() {
 			}
 			
 			call.respond(UserController.get(userId) ?: return@get notFound("user", userId))
+		}
+		
+		get("/me") {
+			val session = call.principal<UserSession>()!!
+			call.respond(UserController.get(session.userId)!!)
 		}
 	}
 }

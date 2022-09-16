@@ -1,11 +1,10 @@
 package routes
 
-import api.GuildPayload
+import api.CreateGuildPayload
 import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import logger
 import sql.models.Guild
 import sql.models.GuildController
 import sql.models.GuildMemberController
@@ -36,23 +35,23 @@ fun Route.guilds() {
 		}
 		
 		post("/create") {
-			val guildPayload = call.receive<GuildPayload>()
+			val createGuildPayload = call.receive<CreateGuildPayload>()
 			
-			verifyStringLength(guildPayload.name, 1..100, "name")
-			verifyStringLength(guildPayload.iconUrl, 1..255, "iconUrl")
-			verifyStringLength(guildPayload.description, 1..511, "description")
+			verifyStringLength(createGuildPayload.name, 1..100, "name")
+			verifyStringLength(createGuildPayload.iconUrl, 1..255, "iconUrl")
+			verifyStringLength(createGuildPayload.description, 1..511, "description")
 			
-			if (!UserController.has(guildPayload.ownerId)) {
-				notFound("user", guildPayload.ownerId)
+			if (!UserController.has(createGuildPayload.ownerId)) {
+				notFound("user", createGuildPayload.ownerId)
 				return@post
 			}
 			
 			val guild = Guild(
 				id = generateId(),
-				name = guildPayload.name,
-				description = guildPayload.description,
-				ownerId = guildPayload.ownerId,
-				iconUrl = guildPayload.iconUrl,
+				name = createGuildPayload.name,
+				description = createGuildPayload.description,
+				ownerId = createGuildPayload.ownerId,
+				iconUrl = createGuildPayload.iconUrl,
 			)
 			
 			val member = GuildMemberController.create(guild.id, guild.ownerId)

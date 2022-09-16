@@ -4,7 +4,7 @@ import kotlinx.serialization.Serializable
 import sql.Snowflake
 
 @Serializable
-data class GuildPayload(
+data class CreateGuildPayload(
 	val name: String,
 	val description: String?,
 	val ownerId: Snowflake,

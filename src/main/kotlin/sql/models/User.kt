@@ -99,5 +99,4 @@ object UserController {
 		
 		QueryDsl.from(Meta.user).where(whereUser).firstOrNull()
 	}
-	
 }
