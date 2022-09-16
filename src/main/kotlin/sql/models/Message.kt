@@ -12,16 +12,13 @@ import org.komapper.annotation.KomapperId
 import org.komapper.core.dsl.Meta
 import org.komapper.core.dsl.QueryDsl
 import org.komapper.core.dsl.operator.desc
-import org.komapper.core.dsl.query.firstOrNull
 import org.komapper.core.dsl.query.flatZip
 import org.komapper.core.dsl.query.map
-import org.komapper.core.dsl.query.single
 import org.komapper.core.dsl.query.singleOrNull
 import serialization.LocalDateTimeSerializer
 import sql.Snowflake
 import sql.runQuery
 import utils.generateId
-import utils.getChannelIdParam
 import java.time.LocalDateTime
 
 @Serializable
@@ -31,7 +28,7 @@ data class Message(
 	val authorId: Snowflake,
 	val channelId: Snowflake,
 	val content: String? = null,
-	val replyId: Snowflake? = null,
+	val replyId: Long? = null, /* temporary fix because Snowflake? compiles as Long and not Long */
 	@KomapperCreatedAt val createdAt: LocalDateTime = LocalDateTime.now(),
 )
 

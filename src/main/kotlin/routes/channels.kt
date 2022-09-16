@@ -4,14 +4,7 @@ import api.ChannelPayload
 import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import org.komapper.core.dsl.Meta
-import org.komapper.core.dsl.QueryDsl
-import org.komapper.core.dsl.operator.desc
-import org.komapper.core.dsl.query.singleOrNull
-import sql.models.channel
-import sql.models.message
-import sql.runQuery
-import sql.runQueryNullable
+import sql.models.ChannelController
 import utils.getChannelIdParam
 import utils.getGuildIdParam
 import utils.invalidId
@@ -20,9 +13,7 @@ import utils.notFound
 fun Route.channels() {
 	route("/channels") {
 		get {
-			val channels = runQuery {
-				QueryDsl.from(Meta.channel).where { Meta.channel.guildId eq getGuildIdParam() }
-			}
+			val channels = ChannelController.getAll(getGuildIdParam())
 			call.respond(channels)
 		}
 		
@@ -36,19 +27,8 @@ fun Route.channels() {
 					return@get
 				}
 				
-				val getChannel = runQuery {
-					QueryDsl.from(Meta.channel).where {
-						Meta.channel.id eq channelId
-						Meta.channel.guildId eq getGuildIdParam()
-					}.singleOrNull()
-				} ?: return@get notFound("channel", channelId)
-				
-				val lastMessage = runQueryNullable {
-					QueryDsl.from(Meta.message).where {
-						Meta.message.channelId eq channelId
-					}.orderBy(Meta.message.id.desc()).limit(1).singleOrNull()
-				}
-				
+				val getChannel = ChannelController.get(channelId) ?: return@get notFound("channel", channelId)
+				val lastMessage = ChannelController.getLastMessage(channelId)
 				val apiChannel = ChannelPayload.fromSQL(getChannel, lastMessage?.id)
 				call.respond(apiChannel)
 			}

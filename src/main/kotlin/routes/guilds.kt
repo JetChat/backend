@@ -28,8 +28,9 @@ fun Route.guilds() {
 					return@get
 				}
 				
+				val getChannels = call.request.queryParameters["channels"]?.toBoolean() ?: false
 				val getMembers = call.request.queryParameters["members"]?.toBoolean() ?: false
-				val getGuild = GuildController.get(guildId, getMembers) ?: return@get notFound("guild", guildId)
+				val getGuild = GuildController.get(guildId, getChannels, getMembers) ?: return@get notFound("guild", guildId)
 				call.respond(getGuild)
 			}
 		}

@@ -27,6 +27,7 @@ data class Guild(
 	@KomapperCreatedAt val createdAt: LocalDateTime = LocalDateTime.now(),
 	val iconUrl: String? = null,
 	@KomapperIgnore var members: List<GuildMember> = emptyList(),
+	@KomapperIgnore var channels: List<Channel> = emptyList(),
 )
 
 object GuildController {
@@ -34,10 +35,11 @@ object GuildController {
 		QueryDsl.insert(Meta.guild).single(guild)
 	}
 	
-	fun get(id: Snowflake, members: Boolean = false) = runQuery {
+	fun get(id: Snowflake, channels: Boolean = false, members: Boolean = false) = runQuery {
 		QueryDsl.from(Meta.guild).where {
 			Meta.guild.id eq id
 		}.singleOrNull().map {
+			if (channels) it?.channels = ChannelController.getAll(id)
 			if (members) it?.members = GuildMemberController.getAll(id)
 			it
 		}
