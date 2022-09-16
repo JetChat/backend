@@ -26,10 +26,14 @@ fun PipelineContext<*, ApplicationCall>.getUserIdParam() = getLongPathParam("use
 internal fun String.capitalizeFirstLetter() = replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
 
 suspend fun PipelineContext<*, ApplicationCall>.notFound(name: String, id: Long? = null) = when (id) {
-	null -> call.respondText("${name.capitalizeFirstLetter()} not found", status = HttpStatusCode.NotFound)
-	else -> call.respondText("${name.capitalizeFirstLetter()} with id '$id' not found", status = HttpStatusCode.NotFound)
+	null -> call.respondText("${name.capitalizeFirstLetter()} not found.", status = HttpStatusCode.NotFound)
+	else -> call.respondText("${name.capitalizeFirstLetter()} with id '$id' not found.", status = HttpStatusCode.NotFound)
 }
-suspend fun PipelineContext<*, ApplicationCall>.invalidId(name: String, id: Long) = call.respondText("Invalid $name id '$id'", status = HttpStatusCode.BadRequest)
+suspend fun PipelineContext<*, ApplicationCall>.invalidId(name: String, id: Long) = call.respondText("Invalid $name id '$id'.", status = HttpStatusCode.BadRequest)
 
 suspend fun PipelineContext<*, ApplicationCall>.badRequest(message: String = "Bad request") = call.respondText(message, status = HttpStatusCode.BadRequest)
-suspend fun PipelineContext<*, ApplicationCall>.verifyStringLength(value: String, range: IntRange, name: String) = if (value.length !in range) badRequest("${name.capitalizeFirstLetter()} must be between ${range.first} and ${range.last} characters long") else Unit
+suspend fun PipelineContext<*, ApplicationCall>.verifyStringLength(value: String?, range: IntRange, name: String) = when {
+	value == null -> Unit
+	value.length !in range -> badRequest("${name.capitalizeFirstLetter()} must be between ${range.first} and ${range.last} characters long.")
+	else -> Unit
+}
