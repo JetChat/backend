@@ -16,6 +16,7 @@ import org.komapper.core.dsl.query.flatZip
 import org.komapper.core.dsl.query.map
 import org.komapper.core.dsl.query.singleOrNull
 import sql.models.Message
+import sql.models.MessageController
 import sql.models.message
 import sql.models.user
 import sql.runQuery
@@ -58,46 +59,55 @@ fun Route.messages() {
 				return@get
 			}
 			
-			val messages = runQuery {
-				QueryDsl.from(Meta.message).where {
-					Meta.message.channelId eq getChannelIdParam()
-				}.where {
-					when {
-						after != null -> Meta.message.id greater after
-						else -> Meta.message.id less before
-					}
-				}.orderBy(Meta.message.id.desc()).limit(limit)
-			}
-			
+			val messages = MessageController.get(getChannelIdParam(), limit, before, after)
 			call.respond(messages)
 		}
 		
-		get("{messageId}") {
-			val messageId = getMessageIdParam()
-			if (messageId == -1L) {
-				invalidId("message", messageId)
-				return@get
-			}
-			
-			val getMessageAndAuthor = runQuery {
-				QueryDsl.from(Meta.message).where {
-					Meta.message.id eq messageId
-				}.singleOrNull().flatZip {
-					QueryDsl.from(Meta.user).where {
-						Meta.user.id eq it?.authorId
-					}.singleOrNull()
-				}.map { (message, user) ->
-					if (message == null || user == null) null
-					else GetMessagePayload.fromSQL(message, user)
+		route("{messageId}") {
+			get {
+				val messageId = getMessageIdParam()
+				if (messageId == -1L) {
+					invalidId("message", messageId)
+					return@get
 				}
+				
+				val getMessageAndAuthor = MessageController.getWithAuthor(messageId)
+				
+				if (getMessageAndAuthor == null) {
+					notFound("message", messageId)
+					return@get
+				}
+				
+				call.respond(getMessageAndAuthor)
 			}
 			
-			if (getMessageAndAuthor == null) {
-				notFound("message", messageId)
-				return@get
+			delete {
+				val messageId = getMessageIdParam()
+				if (messageId == -1L) {
+					invalidId("message", messageId)
+					return@delete
+				}
+				
+				val message = runQuery {
+					QueryDsl.from(Meta.message).where {
+						Meta.message.id eq messageId
+					}.singleOrNull()
+				}
+				
+				if (message == null) {
+					notFound("message", messageId)
+					return@delete
+				}
+				
+				val session = call.principal<UserSession>()!!
+				if (message.authorId != session.userId) {
+					call.respondText("Cannot delete message that is not yours")
+					return@delete
+				}
+				
+				MessageController.delete(messageId)
+				call.respond(message)
 			}
-			
-			call.respond(getMessageAndAuthor)
 		}
 		
 		post("create") {
@@ -109,19 +119,12 @@ fun Route.messages() {
 				return@post
 			}
 			
-			logger.debug(session.toString())
-			
-			val lastMessage = runQuery {
-				QueryDsl.insert(Meta.message).single(
-					Message(
-						id = generateId(),
-						channelId = getChannelIdParam(),
-						authorId = session.userId,
-						content = body.content,
-						replyId = body.replyTo
-					)
-				)
-			}
+			val lastMessage = MessageController.create(
+				channelId = getChannelIdParam(),
+				authorId = session.userId,
+				content = body.content,
+				replyId = body.replyTo
+			)
 			
 			call.respond(lastMessage)
 		}

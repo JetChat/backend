@@ -25,6 +25,7 @@ fun Route.channels() {
 			}
 			call.respond(channels)
 		}
+		
 		route("{channelId}") {
 			messages()
 			
@@ -52,6 +53,5 @@ fun Route.channels() {
 				call.respond(apiChannel)
 			}
 		}
-		
 	}
 }
