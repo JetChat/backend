@@ -1,7 +1,9 @@
 package routes
 
 import api.CreateGuildPayload
+import api.UserSession
 import io.ktor.server.application.*
+import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -17,6 +19,12 @@ import utils.verifyStringLength
 
 fun Route.guilds() {
 	route("/guilds") {
+		get {
+			val session = call.principal<UserSession>()!!
+			val guilds = GuildController.getAll(session.userId)
+			call.respond(guilds)
+		}
+		
 		route("{guildId}") {
 			members()
 			channels()

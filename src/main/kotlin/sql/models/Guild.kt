@@ -44,4 +44,12 @@ object GuildController {
 			it
 		}
 	}
+	
+	fun getAll(userId: Snowflake) = runQuery {
+		QueryDsl.from(Meta.guild).innerJoin(Meta.guildMember) {
+			Meta.guild.id eq Meta.guildMember.guildId
+		}.where {
+			Meta.guildMember.id eq userId
+		}
+	}
 }
