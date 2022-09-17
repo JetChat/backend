@@ -1,6 +1,6 @@
 [versions]
 kotlin = "1.7.10"
-komapper = "1.3.0"
+komapper = "1.4.0"
 kotlinx-coroutines = "1.6.4"
 ktor = "2.1.1"
 ksp = "1.7.10-1.0.6"

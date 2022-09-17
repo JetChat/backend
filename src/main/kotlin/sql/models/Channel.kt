@@ -26,7 +26,7 @@ data class Channel(
 	@KomapperId @KomapperColumn("channel_id") val id: Snowflake,
 	val name: String,
 	val description: String?,
-	val parentId: Long?, /* temporary fix because Snowflake? compiles as Long and not Long */
+	val parentId: Snowflake?,
 	val guildId: Snowflake,
 	val createdAt: LocalDateTime,
 	@KomapperEnum(EnumType.ORDINAL) val channelType: ChannelType,

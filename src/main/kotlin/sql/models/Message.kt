@@ -28,7 +28,7 @@ data class Message(
 	val authorId: Snowflake,
 	val channelId: Snowflake,
 	val content: String? = null,
-	val replyId: Long? = null, /* temporary fix because Snowflake? compiles as Long and not Long */
+	val replyId: Snowflake? = null,
 	@KomapperCreatedAt val createdAt: LocalDateTime = LocalDateTime.now(),
 )
 
