@@ -1,6 +1,7 @@
 @file:UseSerializers(LocalDateTimeSerializer::class)
 package sql.models
 
+import api.GetGuildMemberPayload
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import org.komapper.annotation.KomapperColumn
@@ -9,6 +10,9 @@ import org.komapper.annotation.KomapperEntity
 import org.komapper.annotation.KomapperId
 import org.komapper.core.dsl.Meta
 import org.komapper.core.dsl.QueryDsl
+import org.komapper.core.dsl.query.flatMap
+import org.komapper.core.dsl.query.flatZip
+import org.komapper.core.dsl.query.map
 import org.komapper.core.dsl.query.singleOrNull
 import serialization.LocalDateTimeSerializer
 import sql.Snowflake
@@ -33,12 +37,35 @@ object GuildMemberController {
 		QueryDsl.from(Meta.guildMember).where {
 			Meta.guildMember.guildId eq guildId
 			Meta.guildMember.id eq userId
-		}.singleOrNull()
+		}.singleOrNull().flatZip {
+			QueryDsl.from(Meta.user).where {
+				Meta.user.id eq it?.id
+			}.singleOrNull()
+		}.map { (member, user) ->
+			if (member == null || user == null) null
+			else GetGuildMemberPayload.fromSQL(member, user)
+		}
 	}
 	
 	fun getAll(guildId: Snowflake) = runQuery {
 		QueryDsl.from(Meta.guildMember).where {
 			Meta.guildMember.guildId eq guildId
+		}
+	}
+	
+	fun getAllWithUser(guildId: Snowflake) = runQuery {
+		QueryDsl.from(Meta.guildMember).where {
+			Meta.guildMember.guildId eq guildId
+		}.flatMap { list ->
+			QueryDsl.from(Meta.user).where {
+				Meta.user.id inList list.map { it.id }
+			}.map { users ->
+				list.mapNotNull { member ->
+					users.find { it.id == member.id }?.let { user ->
+						GetGuildMemberPayload.fromSQL(member, user)
+					}
+				}
+			}
 		}
 	}
 }

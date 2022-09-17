@@ -19,7 +19,7 @@ data class ChannelPayload(
 	val lastMessageId: Snowflake?,
 ) {
 	companion object {
-		fun fromSQL(channel: Channel, lastMessageId: Snowflake?): api.ChannelPayload = ChannelPayload(
+		fun fromSQL(channel: Channel, lastMessageId: Snowflake?) = ChannelPayload(
 			id = channel.id,
 			name = channel.name,
 			description = channel.description,

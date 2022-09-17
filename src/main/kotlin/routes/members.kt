@@ -13,8 +13,7 @@ fun Route.members() {
 	route("members") {
 		get {
 			val guildId = getGuildIdParam()
-			val getMembers = GuildMemberController.getAll(guildId)
-			
+			val getMembers = GuildMemberController.getAllWithUser(guildId)
 			call.respond(getMembers)
 		}
 		
@@ -28,7 +27,6 @@ fun Route.members() {
 				
 				val guildId = getGuildIdParam()
 				val getMember = GuildMemberController.get(guildId, memberId) ?: return@get notFound("member", memberId)
-				
 				call.respond(getMember)
 			}
 		}
