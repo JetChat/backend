@@ -4,6 +4,7 @@ import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.netty.*
+import io.ktor.server.plugins.callloging.*
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.plugins.defaultheaders.*
 import io.ktor.server.resources.*
@@ -15,6 +16,7 @@ import io.ktor.util.logging.*
 import kotlinx.serialization.json.Json
 import org.komapper.dialect.mysql.jdbc.MySqlJdbcDialect
 import org.komapper.jdbc.JdbcDatabase
+import org.slf4j.event.Level
 import routes.auth
 import routes.guilds
 import routes.users
@@ -53,12 +55,15 @@ fun Application.module() {
 			}
 		}
 	}
-	install(DefaultHeaders)
+	install(CallLogging) {
+		level = Level.INFO
+	}
 	install(ContentNegotiation) {
 		json(Json {
 			prettyPrint = true
 		})
 	}
+	install(DefaultHeaders)
 	install(Resources)
 	install(Sessions) {
 		cookie<UserSession>("user_session") {

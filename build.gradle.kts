@@ -20,6 +20,7 @@ dependencies {
     implementation(libs.ktor.netty)
     implementation(libs.ktor.serialization)
     implementation(libs.ktor.server.auth)
+    implementation(libs.ktor.server.callLogging)
     implementation(libs.ktor.server.contentNegotiation)
     implementation(libs.ktor.server.defaultHeaders)
     implementation(libs.ktor.server.resources)
