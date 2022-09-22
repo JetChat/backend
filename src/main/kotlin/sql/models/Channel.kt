@@ -1,11 +1,10 @@
-@file:UseSerializers(LocalDateTimeSerializer::class)
-
 package sql.models
 
 import io.ktor.resources.*
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.UseSerializers
 import org.komapper.annotation.EnumType
 import org.komapper.annotation.KomapperColumn
 import org.komapper.annotation.KomapperEntity
@@ -15,10 +14,8 @@ import org.komapper.core.dsl.Meta
 import org.komapper.core.dsl.QueryDsl
 import org.komapper.core.dsl.operator.desc
 import org.komapper.core.dsl.query.singleOrNull
-import serialization.LocalDateTimeSerializer
 import sql.Snowflake
 import sql.runQuery
-import java.time.LocalDateTime
 
 @Serializable
 @KomapperEntity
@@ -28,7 +25,7 @@ data class Channel(
 	val description: String?,
 	val parentId: Snowflake?,
 	val guildId: Snowflake,
-	val createdAt: LocalDateTime,
+	val createdAt: Instant = Clock.System.now(),
 	@KomapperEnum(EnumType.ORDINAL) val channelType: ChannelType,
 	val channelPosition: Int,
 )

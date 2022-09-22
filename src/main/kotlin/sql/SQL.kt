@@ -12,10 +12,3 @@ fun <T> runQuery(query: QueryScope.(TransactionOperator) -> Query<T>): T = db.wi
 		query(it)
 	}
 }
-
-@JvmName("runQuery1")
-fun <T> runQueryNullable(query: QueryScope.(TransactionOperator) -> Query<T>?): T = db.withTransaction {
-	db.runQuery {
-		query(it) ?: throw IllegalStateException()
-	}
-}

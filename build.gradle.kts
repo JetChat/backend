@@ -16,6 +16,7 @@ repositories {
 
 dependencies {
     implementation(libs.kotlinx.coroutines)
+    implementation(libs.kotlinx.datetime)
     implementation(libs.ktor.core)
     implementation(libs.ktor.netty)
     implementation(libs.ktor.serialization)

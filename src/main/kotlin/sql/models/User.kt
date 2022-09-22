@@ -1,14 +1,12 @@
-@file:UseSerializers(LocalDateTimeSerializer::class)
-
 package sql.models
 
 import io.ktor.server.application.*
 import io.ktor.server.response.*
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
-import kotlinx.serialization.UseSerializers
 import org.komapper.annotation.KomapperColumn
-import org.komapper.annotation.KomapperCreatedAt
 import org.komapper.annotation.KomapperEntity
 import org.komapper.annotation.KomapperId
 import org.komapper.core.dsl.Meta
@@ -19,21 +17,19 @@ import org.komapper.core.dsl.operator.or
 import org.komapper.core.dsl.query.firstOrNull
 import org.komapper.core.dsl.query.map
 import org.komapper.core.dsl.query.singleOrNull
-import serialization.LocalDateTimeSerializer
 import sql.Snowflake
 import sql.runQuery
 import utils.generateId
 import utils.generateRandomDiscriminator
 import utils.hashPassword
 import java.sql.SQLDataException
-import java.time.LocalDateTime
 
 @Serializable
 @KomapperEntity
 data class User(
 	@KomapperId @KomapperColumn("user_id") val id: Snowflake,
 	val avatarUrl: String? = null,
-	@KomapperCreatedAt val createdAt: LocalDateTime = LocalDateTime.now(),
+	val createdAt: Instant = Clock.System.now(),
 	val description: String? = null,
 	val discriminator: Int,
 	@Transient val email: String = "",

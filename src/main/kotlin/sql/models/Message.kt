@@ -1,12 +1,10 @@
-@file:UseSerializers(LocalDateTimeSerializer::class)
-
 package sql.models
 
 import api.GetMessagePayload
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.UseSerializers
 import org.komapper.annotation.KomapperColumn
-import org.komapper.annotation.KomapperCreatedAt
 import org.komapper.annotation.KomapperEntity
 import org.komapper.annotation.KomapperId
 import org.komapper.core.dsl.Meta
@@ -17,11 +15,9 @@ import org.komapper.core.dsl.query.map
 import org.komapper.core.dsl.query.single
 import org.komapper.core.dsl.query.singleOrNull
 import org.komapper.core.dsl.query.zip
-import serialization.LocalDateTimeSerializer
 import sql.Snowflake
 import sql.runQuery
 import utils.generateId
-import java.time.LocalDateTime
 
 @Serializable
 @KomapperEntity
@@ -31,7 +27,7 @@ data class Message(
 	val channelId: Snowflake,
 	val content: String? = null,
 	val replyId: Snowflake? = null,
-	@KomapperCreatedAt val createdAt: LocalDateTime = LocalDateTime.now(),
+	val createdAt: Instant = Clock.System.now(),
 )
 
 object MessageController {

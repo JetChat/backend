@@ -1,10 +1,9 @@
-@file:UseSerializers(LocalDateTimeSerializer::class)
 package sql.models
 
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.UseSerializers
 import org.komapper.annotation.KomapperColumn
-import org.komapper.annotation.KomapperCreatedAt
 import org.komapper.annotation.KomapperEntity
 import org.komapper.annotation.KomapperId
 import org.komapper.annotation.KomapperIgnore
@@ -12,10 +11,8 @@ import org.komapper.core.dsl.Meta
 import org.komapper.core.dsl.QueryDsl
 import org.komapper.core.dsl.query.map
 import org.komapper.core.dsl.query.singleOrNull
-import serialization.LocalDateTimeSerializer
 import sql.Snowflake
 import sql.runQuery
-import java.time.LocalDateTime
 
 @Serializable
 @KomapperEntity
@@ -24,7 +21,7 @@ data class Guild(
 	val name: String,
 	val description: String? = null,
 	val ownerId: Snowflake,
-	@KomapperCreatedAt val createdAt: LocalDateTime = LocalDateTime.now(),
+	val createdAt: Instant = Clock.System.now(),
 	val iconUrl: String? = null,
 	@KomapperIgnore var members: List<GuildMember> = emptyList(),
 	@KomapperIgnore var channels: List<Channel> = emptyList(),
