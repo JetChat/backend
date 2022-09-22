@@ -1,6 +1,6 @@
 package api
 
-import io.ktor.server.http.*
+import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
 import sql.Snowflake
 import sql.models.Channel
@@ -13,7 +13,7 @@ data class ChannelPayload(
 	val description: String?,
 	val parentId: Snowflake?,
 	val guildId: Snowflake,
-	val createdAt: String,
+	val createdAt: Instant,
 	val channelType: ChannelType,
 	val channelPosition: Int,
 	val lastMessageId: Snowflake?,
@@ -25,7 +25,7 @@ data class ChannelPayload(
 			description = channel.description,
 			parentId = channel.parentId,
 			guildId = channel.guildId,
-			createdAt = channel.createdAt.toHttpDateString(),
+			createdAt = channel.createdAt,
 			channelType = channel.channelType,
 			channelPosition = channel.channelPosition,
 			lastMessageId = lastMessageId,

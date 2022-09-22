@@ -1,6 +1,6 @@
 package api
 
-import io.ktor.server.http.*
+import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
 import sql.Snowflake
 import sql.models.Message
@@ -19,7 +19,7 @@ data class GetMessagePayload(
 	val channelId: Snowflake,
 	val content: String?,
 	val replyId: Snowflake?,
-	val createdAt: String,
+	val createdAt: Instant,
 	val author: User,
 ) {
 	companion object {
@@ -29,7 +29,7 @@ data class GetMessagePayload(
 			message.channelId,
 			message.content,
 			message.replyId,
-			message.createdAt.toHttpDateString(),
+			message.createdAt,
 			author
 		)
 	}
