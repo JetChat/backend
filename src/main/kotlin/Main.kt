@@ -21,6 +21,7 @@ import routes.auth
 import routes.guilds
 import routes.users
 import java.time.Duration
+import kotlin.time.Duration.Companion.minutes
 
 fun env(key: String, default: String) = System.getenv(key) ?: default
 fun env(key: String) = System.getenv(key) ?: null
@@ -60,7 +61,7 @@ fun Application.module() {
 	}
 	install(ContentNegotiation) {
 		json(Json {
-			prettyPrint = true
+			prettyPrint = env("ENVIRONMENT", "prod") == "dev"
 		})
 	}
 	install(DefaultHeaders)
@@ -68,7 +69,7 @@ fun Application.module() {
 	install(Sessions) {
 		cookie<UserSession>("user_session") {
 			cookie.path = "/"
-			cookie.maxAgeInSeconds = Duration.ofMinutes(5).seconds
+			cookie.maxAge = 5.minutes
 			
 			transform(SessionTransportTransformerMessageAuthentication(sessionCookieKey))
 		}
