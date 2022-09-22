@@ -14,7 +14,9 @@ import org.komapper.core.dsl.QueryDsl
 import org.komapper.core.dsl.operator.desc
 import org.komapper.core.dsl.query.flatZip
 import org.komapper.core.dsl.query.map
+import org.komapper.core.dsl.query.single
 import org.komapper.core.dsl.query.singleOrNull
+import org.komapper.core.dsl.query.zip
 import serialization.LocalDateTimeSerializer
 import sql.Snowflake
 import sql.runQuery
@@ -42,7 +44,11 @@ object MessageController {
 				content = content,
 				replyId = replyId,
 			)
-		)
+		).zip(QueryDsl.from(Meta.user).where {
+			Meta.user.id eq authorId
+		}.single()).map { (message, user) ->
+			GetMessagePayload.fromSQL(message, user)
+		}
 	}
 	
 	fun delete(messageId: Snowflake) = runQuery {
