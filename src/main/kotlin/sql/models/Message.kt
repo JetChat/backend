@@ -17,6 +17,7 @@ import org.komapper.core.dsl.query.singleOrNull
 import org.komapper.core.dsl.query.zip
 import sql.Snowflake
 import sql.runQuery
+import sql.toInstant
 import utils.generateId
 
 @Serializable
@@ -66,10 +67,18 @@ object MessageController {
 			Meta.message.channelId eq channelId
 		}.where {
 			when {
-				after != null -> Meta.message.id greater after
-				else -> Meta.message.id less before
+				after != null -> Meta.message.createdAt greater after.toInstant()
+				before != null -> Meta.message.createdAt less before.toInstant()
 			}
-		}.orderBy(Meta.message.id.desc()).limit(limit)
+		}.orderBy(Meta.message.id.desc()).limit(limit).flatZip { messages ->
+			QueryDsl.from(Meta.user).where {
+				Meta.user.id inList messages.map { it.authorId }
+			}
+		}.map { (messages, users) ->
+			messages.map { message ->
+				GetMessagePayload.fromSQL(message, users.first { it.id == message.authorId })
+			}
+		}
 	}
 	
 	fun getWithAuthor(id: Snowflake) = runQuery {

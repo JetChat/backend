@@ -8,19 +8,13 @@ import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import logger
 import org.komapper.core.dsl.Meta
 import org.komapper.core.dsl.QueryDsl
-import org.komapper.core.dsl.operator.desc
-import org.komapper.core.dsl.query.flatZip
-import org.komapper.core.dsl.query.map
 import org.komapper.core.dsl.query.singleOrNull
-import sql.models.Message
+import sql.isValid
 import sql.models.MessageController
 import sql.models.message
-import sql.models.user
 import sql.runQuery
-import utils.generateId
 import utils.getChannelIdParam
 import utils.getLongPathParam
 import utils.getMessageIdParam
@@ -54,8 +48,13 @@ fun Route.messages() {
 				return@get
 			}
 			
-			if ((after != null && after < 0) || (before != null && before < 0)) {
-				call.respondText("Invalid 'after' or 'before' value, must be greater than 0")
+			if (after?.isValid() == false) {
+				call.respondText("Invalid 'after' id")
+				return@get
+			}
+			
+			if (before?.isValid() == false) {
+				call.respondText("Invalid 'before' id")
 				return@get
 			}
 			
